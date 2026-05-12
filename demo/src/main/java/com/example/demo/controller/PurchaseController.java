@@ -7,6 +7,8 @@ import com.example.demo.service.PurchaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/purchase")
 public class PurchaseController {
@@ -28,6 +30,18 @@ public class PurchaseController {
     @PostMapping
     public Result<?> save(@RequestBody PurchaseRecord record) {
         purchaseService.save(record);
+        return Result.ok();
+    }
+
+    @DeleteMapping("/{id}")
+    public Result<?> delete(@PathVariable Integer id) {
+        purchaseService.delete(id);
+        return Result.ok();
+    }
+
+    @DeleteMapping("/batch")
+    public Result<?> batchDelete(@RequestBody List<Integer> ids) {
+        purchaseService.batchDelete(ids);
         return Result.ok();
     }
 }

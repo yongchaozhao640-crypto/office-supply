@@ -39,11 +39,32 @@
           <el-icon><TrendCharts /></el-icon>
           <span>费用汇总</span>
         </el-menu-item>
+        <el-menu-item index="/users" v-if="user?.role === 'admin'">
+          <el-icon><Setting /></el-icon>
+          <span>用户管理</span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
     <el-container>
       <el-header>
         <span class="title">{{ $route.meta.title }}</span>
+        <div class="header-right">
+          <el-dropdown trigger="click">
+            <span class="user-info">
+              <el-icon><User /></el-icon>
+              {{ user?.name || user?.username }}
+              <el-icon><ArrowDown /></el-icon>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item disabled>
+                  角色: {{ user?.role === 'admin' ? '管理员' : '普通用户' }}
+                </el-dropdown-item>
+                <el-dropdown-item divided @click="handleLogout">退出登录</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
       </el-header>
       <el-main>
         <router-view />
@@ -54,14 +75,24 @@
 
 <script>
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
 
 export default {
   name: 'Layout',
   setup() {
     const route = useRoute()
+    const router = useRouter()
+    const authStore = useAuthStore()
     const activeMenu = computed(() => route.path)
-    return { activeMenu }
+    const user = computed(() => authStore.currentUser)
+
+    function handleLogout() {
+      authStore.logout()
+      router.push('/login')
+    }
+
+    return { activeMenu, user, handleLogout }
   }
 }
 </script>
@@ -78,9 +109,16 @@ body { font-family: 'Microsoft YaHei', Arial, sans-serif; }
 }
 .logo .el-icon { color: #409EFF; }
 .el-header {
-  background: #fff; display: flex; align-items: center;
+  background: #fff; display: flex; align-items: center; justify-content: space-between;
   border-bottom: 1px solid #e6e6e6; padding: 0 20px;
 }
 .el-header .title { font-size: 18px; font-weight: bold; color: #303133; }
+.header-right {
+  display: flex; align-items: center; gap: 16px; cursor: pointer;
+}
+.user-info {
+  display: flex; align-items: center; gap: 4px;
+  color: #303133; font-size: 14px;
+}
 .el-main { background: #f0f2f5; padding: 20px; }
 </style>

@@ -7,6 +7,8 @@ import com.example.demo.service.UsageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/usage")
 public class UsageController {
@@ -29,6 +31,18 @@ public class UsageController {
     @PostMapping
     public Result<?> save(@RequestBody UsageRecord record) {
         usageService.save(record);
+        return Result.ok();
+    }
+
+    @DeleteMapping("/{id}")
+    public Result<?> delete(@PathVariable Integer id) {
+        usageService.delete(id);
+        return Result.ok();
+    }
+
+    @DeleteMapping("/batch")
+    public Result<?> batchDelete(@RequestBody List<Integer> ids) {
+        usageService.batchDelete(ids);
         return Result.ok();
     }
 }

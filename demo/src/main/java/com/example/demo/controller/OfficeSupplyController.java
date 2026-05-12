@@ -41,4 +41,10 @@ public class OfficeSupplyController {
         supplyService.delete(id);
         return Result.ok();
     }
+
+    @DeleteMapping("/batch")
+    public Result<?> batchDelete(@RequestBody List<Integer> ids) {
+        supplyService.batchDelete(ids);
+        return Result.ok();
+    }
 }

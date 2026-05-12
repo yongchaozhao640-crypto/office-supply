@@ -9,10 +9,14 @@
             <el-input v-model="searchDept" placeholder="部门" clearable style="width:130px" @clear="load" @keyup.enter="load" />
             <el-button type="primary" @click="load">搜索</el-button>
           </div>
-          <el-button type="primary" @click="handleAdd">新增人员</el-button>
+          <div style="display:flex;gap:8px">
+            <el-button type="danger" :disabled="selectedRows.length === 0" @click="handleBatchDelete">批量删除（{{ selectedRows.length }}）</el-button>
+            <el-button type="primary" @click="handleAdd">新增人员</el-button>
+          </div>
         </div>
       </template>
-      <el-table :data="tableData" stripe>
+      <el-table :data="tableData" stripe @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="50" />
         <el-table-column prop="personNo" label="编号" width="70" />
         <el-table-column prop="name" label="姓名" width="120" />
         <el-table-column prop="deptName" label="所属部门" min-width="160" />
@@ -48,13 +52,14 @@
 
 <script>
 import { ref, reactive, onMounted } from 'vue'
-import { getPersonnelList, addPersonnel, updatePersonnel, deletePersonnel } from '../api/personnel'
+import { getPersonnelList, addPersonnel, updatePersonnel, deletePersonnel, batchDeletePersonnel } from '../api/personnel'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 export default {
   name: 'PersonnelList',
   setup() {
     const tableData = ref([])
+    const selectedRows = ref([])
     const searchName = ref('')
     const searchDept = ref('')
     const dialogVisible = ref(false)
@@ -72,6 +77,10 @@ export default {
         deptName: searchDept.value || undefined
       })
       tableData.value = data || []
+    }
+
+    function handleSelectionChange(rows) {
+      selectedRows.value = rows
     }
 
     function handleAdd() {
@@ -93,6 +102,14 @@ export default {
       load()
     }
 
+    async function handleBatchDelete() {
+      await ElMessageBox.confirm(`确定删除选中的 ${selectedRows.value.length} 人吗？`, '批量删除', { type: 'warning' })
+      const ids = selectedRows.value.map(r => r.id)
+      await batchDeletePersonnel(ids)
+      ElMessage.success('批量删除成功')
+      load()
+    }
+
     async function submit() {
       const valid = await formRef.value.validate().catch(() => false)
       if (!valid) return
@@ -108,7 +125,7 @@ export default {
     }
 
     onMounted(load)
-    return { tableData, searchName, searchDept, dialogVisible, dialogTitle, form, formRef, rules, load, handleAdd, handleEdit, handleDelete, submit }
+    return { tableData, selectedRows, searchName, searchDept, dialogVisible, dialogTitle, form, formRef, rules, load, handleSelectionChange, handleAdd, handleEdit, handleDelete, handleBatchDelete, submit }
   }
 }
 </script>

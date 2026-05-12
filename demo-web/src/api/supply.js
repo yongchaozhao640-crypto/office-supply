@@ -15,3 +15,7 @@ export function updateSupply(data) {
 export function deleteSupply(id) {
   return request.delete('/supply/' + id)
 }
+
+export function batchDeleteSupply(ids) {
+  return request.delete('/supply/batch', { data: ids })
+}

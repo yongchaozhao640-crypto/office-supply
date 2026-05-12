@@ -2,6 +2,7 @@ package com.example.demo.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.demo.entity.Inventory;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import java.math.BigDecimal;
 import java.util.List;
@@ -28,7 +29,7 @@ public interface InventoryMapper extends BaseMapper<Inventory> {
         "LEFT JOIN (SELECT supply_id, SUM(quantity) AS total_qty FROM purchase_record GROUP BY supply_id) p ON s.id = p.supply_id " +
         "LEFT JOIN (SELECT supply_id, SUM(quantity) AS total_qty FROM usage_record GROUP BY supply_id) u ON s.id = u.supply_id " +
         "WHERE s.id = #{supplyId}")
-    BigDecimal currentStockOf(Integer supplyId);
+    BigDecimal currentStockOf(@Param("supplyId") Integer supplyId);
 
     @Select("SELECT COUNT(*) FROM (" +
         "SELECT COALESCE(p.total_qty, 0) - COALESCE(u.total_qty, 0) AS current_qty, " +

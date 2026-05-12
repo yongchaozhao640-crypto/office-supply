@@ -57,4 +57,10 @@ public class PersonnelService {
     public void delete(Integer id) {
         personnelMapper.deleteById(id);
     }
+
+    public void batchDelete(List<Integer> ids) {
+        if (ids != null && !ids.isEmpty()) {
+            personnelMapper.deleteBatchIds(ids);
+        }
+    }
 }

@@ -59,6 +59,13 @@ public class OfficeSupplyService {
         deleteCache();
     }
 
+    public void batchDelete(List<Integer> ids) {
+        if (ids != null && !ids.isEmpty()) {
+            supplyMapper.deleteBatchIds(ids);
+            deleteCache();
+        }
+    }
+
     private void deleteCache() {
         if (redisTemplate != null) {
             redisTemplate.delete(CACHE_KEY);

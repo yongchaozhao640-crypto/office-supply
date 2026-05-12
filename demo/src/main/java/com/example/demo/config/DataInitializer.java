@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -31,6 +32,7 @@ public class DataInitializer {
     @Autowired private PurchaseRecordMapper purchaseMapper;
     @Autowired private UsageRecordMapper usageMapper;
     @Autowired private InventoryMapper inventoryMapper;
+    @Autowired private UserMapper userMapper;
 
     // cache supply name -> id mapping for fast lookup during import
     private Map<String, Integer> supplyNameToId;
@@ -45,6 +47,8 @@ public class DataInitializer {
             populator.setContinueOnError(true);
             populator.execute(dataSource);
 
+            createDefaultAdmin();
+
             if (supplyMapper.selectCount(new QueryWrapper<>()) > 0) {
                 log.info("Database already initialized, skipping data import");
                 return;
@@ -54,6 +58,19 @@ public class DataInitializer {
             log.info("Database initialized successfully from Excel");
         } catch (Exception e) {
             log.error("Failed to initialize database: {}", e.getMessage(), e);
+        }
+    }
+
+    private void createDefaultAdmin() {
+        User admin = userMapper.selectOne(new QueryWrapper<User>().eq("username", "admin"));
+        if (admin == null) {
+            admin = new User();
+            admin.setName("管理员");
+            admin.setUsername("admin");
+            admin.setPassword(new BCryptPasswordEncoder().encode("123456"));
+            admin.setRole("admin");
+            userMapper.insert(admin);
+            log.info("Default admin user created: admin / 123456");
         }
     }
 

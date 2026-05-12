@@ -8,10 +8,14 @@
             <el-input v-model="searchName" placeholder="搜索物品名称" clearable style="width:220px" @clear="load" @keyup.enter="load" />
             <el-button type="primary" @click="load">搜索</el-button>
           </div>
-          <el-button type="primary" @click="handleAdd">新增物品</el-button>
+          <div style="display:flex;gap:8px">
+            <el-button type="danger" :disabled="selectedRows.length === 0" @click="handleBatchDelete">批量删除（{{ selectedRows.length }}）</el-button>
+            <el-button type="primary" @click="handleAdd">新增物品</el-button>
+          </div>
         </div>
       </template>
-      <el-table :data="tableData" stripe>
+      <el-table :data="tableData" stripe @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="50" />
         <el-table-column prop="supplyNo" label="编号" width="80" />
         <el-table-column prop="name" label="办公用品名称" min-width="180" />
         <el-table-column prop="unit" label="单位" width="80" />
@@ -64,13 +68,14 @@
 
 <script>
 import { ref, reactive, onMounted } from 'vue'
-import { getSupplyList, addSupply, updateSupply, deleteSupply } from '../api/supply'
+import { getSupplyList, addSupply, updateSupply, deleteSupply, batchDeleteSupply } from '../api/supply'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 export default {
   name: 'SupplyList',
   setup() {
     const tableData = ref([])
+    const selectedRows = ref([])
     const dialogVisible = ref(false)
     const dialogTitle = ref('新增')
     const form = reactive({ id: null, supplyNo: 1, name: '', unit: '', model: '', unitPrice: null, warningStock: 5, remark: '' })
@@ -78,6 +83,10 @@ export default {
 
     async function load() {
       tableData.value = await getSupplyList({ name: searchName.value || undefined })
+    }
+
+    function handleSelectionChange(rows) {
+      selectedRows.value = rows
     }
 
     function handleAdd() {
@@ -99,6 +108,14 @@ export default {
       load()
     }
 
+    async function handleBatchDelete() {
+      await ElMessageBox.confirm(`确定删除选中的 ${selectedRows.value.length} 条记录吗？`, '批量删除', { type: 'warning' })
+      const ids = selectedRows.value.map(r => r.id)
+      await batchDeleteSupply(ids)
+      ElMessage.success('批量删除成功')
+      load()
+    }
+
     async function submit() {
       if (form.id) {
         await updateSupply({ ...form })
@@ -112,7 +129,7 @@ export default {
     }
 
     onMounted(load)
-    return { tableData, dialogVisible, dialogTitle, form, searchName, handleAdd, handleEdit, handleDelete, submit, load }
+    return { tableData, selectedRows, dialogVisible, dialogTitle, form, searchName, handleSelectionChange, handleAdd, handleEdit, handleDelete, handleBatchDelete, submit, load }
   }
 }
 </script>

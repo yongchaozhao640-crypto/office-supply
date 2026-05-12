@@ -15,3 +15,7 @@ export function updatePersonnel(data) {
 export function deletePersonnel(id) {
   return request.delete('/personnel/' + id)
 }
+
+export function batchDeletePersonnel(ids) {
+  return request.delete('/personnel/batch', { data: ids })
+}

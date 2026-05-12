@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class UsageService {
@@ -115,6 +116,18 @@ public class UsageService {
 
         usageMapper.insert(record);
         deleteCaches();
+    }
+
+    public void delete(Integer id) {
+        usageMapper.deleteById(id);
+        deleteCaches();
+    }
+
+    public void batchDelete(List<Integer> ids) {
+        if (ids != null && !ids.isEmpty()) {
+            usageMapper.deleteBatchIds(ids);
+            deleteCaches();
+        }
     }
 
     private void deleteCaches() {

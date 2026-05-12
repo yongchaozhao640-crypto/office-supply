@@ -39,4 +39,10 @@ public class PersonnelController {
         personnelService.delete(id);
         return Result.ok();
     }
+
+    @DeleteMapping("/batch")
+    public Result<Void> batchDelete(@RequestBody List<Integer> ids) {
+        personnelService.batchDelete(ids);
+        return Result.ok();
+    }
 }
