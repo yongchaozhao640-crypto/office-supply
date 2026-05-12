@@ -1,0 +1,25 @@
+# Maven
+demo/target/
+
+# Node
+demo-web/node_modules/
+demo-web/dist/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/
+
+# Misc
+*.zip
+*.png
+/*.xlsx
+/*.png
+/*.zip
