@@ -18,6 +18,7 @@ Thumbs.db
 .claude/
 
 # Misc
+demo/output.txt
 *.zip
 *.png
 /*.xlsx
